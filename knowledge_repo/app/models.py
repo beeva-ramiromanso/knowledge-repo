@@ -350,7 +350,12 @@ class Post(db.Model):
 
         # create an implicit group, group_post.id, to add
         # single users to
-        group = Group(name="group_" + str(self.id))
+        # we don't have self.id here necessarily, so query the Post table
+        # for the path
+        post_id = (db_session.query(Post)
+                             .filter(Post.path == self.path)
+                             .first()).id
+        group = Group(name="group_" + str(post_id))
 
         # this created group should have the author associated with it
         # so they can add people to the post
@@ -542,4 +547,4 @@ class Group(db.Model):
 
     @users.setter
     def users(self, user_objs):
-        self._users = user_objs
+        self._users = self._users + user_objs
